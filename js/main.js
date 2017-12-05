@@ -102,7 +102,22 @@ function forceGraph(nodes,links){
           .attr("y2", function(d) { return d.target.y; });
 
         node.attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; });            
+          .attr("cy", function(d) { return d.y; });
+
+        node.on("mouseover",function(d){
+          $('#info_overlay').html('<p>'+d.n+'</p><p>'+d.o+'</p><p>Click to see on HDX</p>');
+        });
+
+        node.on("mouseout",function(d){
+          $('#info_overlay').html('<p>Hover a point for more info</p>');
+        });
+
+        node.on("click",function(d){
+          window.open("https://data.humdata.org/dataset/"+d.i);
+        });
+
+        
+
         kmeans(30,svg);
 
 
