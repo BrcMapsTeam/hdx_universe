@@ -98,7 +98,8 @@ function forceGraph(nodes,links){
 
       node.attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; });*/
-      console.log('tick');
+      tick++
+      $('#loadingpercent').html(Math.round(tick/3));
 
       /*highlights.attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; });*/
@@ -133,6 +134,8 @@ function forceGraph(nodes,links){
   force
       .on('end', function() {
 
+        $('#loader').remove();
+
         var link = svg.selectAll(".link")
           .data(links)
           .enter().append("line")
@@ -140,8 +143,6 @@ function forceGraph(nodes,links){
           .style("stroke-width", function(d) {
             return d.value;
           });
-
-        console.log(nodes);
 
         var node = svg.selectAll(".node")
             .data(nodes)
@@ -165,8 +166,9 @@ function forceGraph(nodes,links){
 
         node.attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; });            
-
         kmeans(30,svg);
+
+
       });
 
     force
@@ -196,8 +198,9 @@ let linkCall = $.ajax({
 
 var zoom = d3.behavior.zoom();
 
-nodes = [];
-links = [];
+var nodes = [];
+var links = [];
+var tick = 0;
 
 $.when(nodeCall,linkCall).then(function(nodeArgs,linkArgs){
   links = linkArgs[0];
@@ -217,6 +220,7 @@ $.when(nodeCall,linkCall).then(function(nodeArgs,linkArgs){
     d.target = d.t;
     d.value = d.v;
   });
+  $('#loader').html('Simulating Graph <span id="loadingpercent">0</span>%');
   forceGraph(nodes,links);
 });
 
