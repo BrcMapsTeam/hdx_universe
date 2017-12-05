@@ -61,7 +61,11 @@ function forceGraph(nodes,links){
           .enter().append("line")
           .attr("class", "link")
           .style("stroke-width", function(d) {
-            return d.value;
+            if(d.value>10){
+              return 10
+            } else {
+              return d.value;
+            }
           });
 
         var node = svg.selectAll(".node")
@@ -74,17 +78,22 @@ function forceGraph(nodes,links){
               return "node ";
             })
             .attr("r", function(d) {
-                return 20;
+                return 30;
             })
             .style("stroke",function(d){
-              var hxl = d.t.indexOf('hxl');
-              console.log(hxl);
-              if(hxl==-1){
-                return 'black';
+              if(d.h==1){
+                return '#E53935';
               } else {
-                return '#B71C1C'
+                return 'black';
               }
             })
+            .style("fill",function(d){
+              if(d.h==1){
+                return '#E53935';
+              } else {
+                return 'black';
+              }
+            })            
             .style("stroke-width",2);
 
         link.attr("x1", function(d) { return d.source.x; })
@@ -93,7 +102,22 @@ function forceGraph(nodes,links){
           .attr("y2", function(d) { return d.target.y; });
 
         node.attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; });            
+          .attr("cy", function(d) { return d.y; });
+
+        node.on("mouseover",function(d){
+          $('#info_overlay').html('<p>'+d.n+'</p><p>'+d.o+'</p><p>Click to see on HDX</p>');
+        });
+
+        node.on("mouseout",function(d){
+          $('#info_overlay').html('<p>Hover a point for more info</p>');
+        });
+
+        node.on("click",function(d){
+          window.open("https://data.humdata.org/dataset/"+d.i);
+        });
+
+        
+
         kmeans(30,svg);
 
 
@@ -128,16 +152,6 @@ var tick = 0;
 $.when(nodeCall,linkCall).then(function(nodeArgs,linkArgs){
   links = linkArgs[0];
   nodes = nodeArgs[0];
-  nodes.forEach(function(n){
-    var index = n.t.indexOf('geodata');
-    n.t.splice(index, 1);
-    var index = n.t.indexOf('polygon');
-    n.t.splice(index, 1);
-    var index = n.t.indexOf('geodatabase');
-    n.t.splice(index, 1);
-    var index = n.t.indexOf('shapefile');
-    n.t.splice(index, 1);    
-  });
   links.forEach(function(d){
     d.source = d.s;
     d.target = d.t;
@@ -260,6 +274,17 @@ function kmeans(clusternum,svg){
 
     recs.attr("width", function(d){return d.bbox.width/zoom.scale()})
       .attr("height", function(d){return d.bbox.height/zoom.scale()})
+
+  var fail = 0;
+
+  clusters.forEach(function(c){
+    if(isNaN(c.x)){
+      fail++;
+    }
+  });
+  if(fail>10){
+    kmeans(30,svg);
+  }
 
   function getBB(selection) {
       selection.each(function(d){
