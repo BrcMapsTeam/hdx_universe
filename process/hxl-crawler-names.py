@@ -17,8 +17,10 @@ ckan = ckanapi.RemoteCKAN(CKAN_URL)
 result = find_datasets(0, 0)
 result_total_count = result["count"]
 numOfFiles =  result["count"]
-loops = int(math.ceil(numOfFiles/1000))
+#loops = int(math.ceil(numOfFiles/1000))
 output = []
+loops = 7
+cutTags = ['geodata','hxl','polygon','geodatabase','shapefile']
 for i in range(0, loops):
 	result = find_datasets(1000*i, 1000)
 	packages = result["results"]
@@ -28,9 +30,12 @@ for i in range(0, loops):
 		item['n'] = package['title']
 		item['d'] = package['total_res_downloads']
 		item['t'] = []
+		item['h'] = 0
 		for tag in package['tags']:
-			if tag['name']!='hxl':
-				item['t'].append(tag['name'])
+			if tag['name'].lower() not in cutTags:
+				item['t'].append(tag['name'].lower())
+			if tag['name'].lower() == 'hxl':
+				item['h'] = 1
 		countries =  json.loads(package['solr_additions'])
 		for tag in countries['countries']:
 			item['t'].append(tag)

@@ -30,8 +30,8 @@ for key in linkdict:
         links.append(linkdict[key][0])
     if length>1:
         links.append(linkdict[key][1])
-    if length>2:
-        links.append(linkdict[key][2])        
+    #if length>2:
+    #    links.append(linkdict[key][2])        
 
 with open('hdxDataLinks.json', 'w') as file:
     json.dump(links, file)
