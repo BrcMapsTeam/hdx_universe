@@ -1,0 +1,1 @@
+{"notes": "Some APIs (e.g. http://openweathermap.org/current) don't have search by countryname, but do have search for data within a geographical bounding box. This list should help in grabbing country-specific data from those APIs. "}

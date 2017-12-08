@@ -2,8 +2,8 @@ function forceGraph(nodes,links){
 
   var initialDrag = true;
 
-  var width = $('body').width();
-  var height = 600;
+  width = $('body').width();
+  height = $('#map').height();
 
   var force = d3.layout.force()
       .charge(-2000)
@@ -35,26 +35,40 @@ function forceGraph(nodes,links){
       $('#loadingpercent').html(Math.round(tick/3));
   });
 
-  function redraw() {
-        svg.attr("transform",
-          "translate(" + d3.event.translate + ")"
-          + " scale(" + (d3.event.scale) + ")");
+  $('#zoom-in').on('click',function(){
+    mapZoom('in');
+  });
+  $('#zoom-out').on('click',function(){
+    mapZoom('out');
+  });
 
-        var size = 15/zoom.scale();
-
-        d3.selectAll('.cluster').attr("font-size", function(d){
-          return size + 'px';
-        })
-
-      d3.selectAll('.clusterrec').attr("width", function(d){return d.bbox.width/zoom.scale() })
-        .attr("height", function(d){return d.bbox.height/zoom.scale()})
-        .attr("y", function(d) { return d.y-15/zoom.scale(); })
+  $('#play').on('click',function(){
+    console.log('play');
+    if(!play){
+      $('#play').html('⏹');
+      play = true;
+      playmode();
+    } else {
+      $('#play').html('▶');
+      play = false;
     }
+  });
+
+  function mapZoom(zoomType){
+    if(zoomType=='in'){
+      zoom.scale(zoom.scale()*1.5);
+    } else {
+      zoom.scale(zoom.scale()/1.5);
+    }
+    redraw();
+  }
 
   force
       .on('end', function() {
 
+        $('#intro-text').remove();
         $('#loader').remove();
+        $('.sp').remove();
 
         var link = svg.selectAll(".link")
           .data(links)
@@ -105,18 +119,22 @@ function forceGraph(nodes,links){
           .attr("cy", function(d) { return d.y; });
 
         node.on("mouseover",function(d){
-          $('#info_overlay').html('<p>'+d.n+'</p><p>'+d.o+'</p><p>Click to see on HDX</p>');
+          if(!play){
+            showinfo(d);
+          }
         });
 
         node.on("mouseout",function(d){
-          $('#info_overlay').html('<p>Hover a point for more info</p>');
+          if(!play){
+            $('#info_overlay').html('<p>Hover a point for more info</p>');
+          }
         });
 
         node.on("click",function(d){
           window.open("https://data.humdata.org/dataset/"+d.i);
         });
 
-        
+
 
         kmeans(30,svg);
 
@@ -139,7 +157,7 @@ let nodeCall = $.ajax({
 
 let linkCall = $.ajax({ 
     type: 'GET', 
-    url: 'data/hdxDataLinks.json',
+    url: 'data/hdxDataLinks2.json',
     dataType: 'json',
 });
 
@@ -148,6 +166,14 @@ var zoom = d3.behavior.zoom();
 var nodes = [];
 var links = [];
 var tick = 0;
+
+var width;
+var height;
+var svg;
+var play = false;
+
+console.log($(window).height());
+$('#map').height(Math.max($(window).height(),600));
 
 $.when(nodeCall,linkCall).then(function(nodeArgs,linkArgs){
   links = linkArgs[0];
@@ -158,7 +184,7 @@ $.when(nodeCall,linkCall).then(function(nodeArgs,linkArgs){
     d.value = d.v;
   });
   $('#loader').html('Simulating Graph <span id="loadingpercent">0</span>%');
-  forceGraph(nodes,links);
+  svg = forceGraph(nodes,links);
 });
 
 function kmeans(clusternum,svg){
@@ -246,9 +272,14 @@ function kmeans(clusternum,svg){
       .data(clusters)
       .enter()
 
+  scale = zoom.scale();
+  if(scale<0.03){
+    scale = 0.03;
+  }
+
   var recs = clustertext.append("rect")
     .attr("x", function(d) { return d.x; })
-        .attr("y", function(d) { return d.y-15/zoom.scale(); })
+        .attr("y", function(d) { return d.y-15/scale; })
       .attr("width", function(d){return 0})
       .attr("height", function(d){return 0})
       .attr("class","cluster clusterrec")
@@ -262,7 +293,7 @@ function kmeans(clusternum,svg){
         .attr("y", function(d) { return d.y; })
         .text( function (d) { return d.label; })
         .attr("font-size", function(d){
-          var size = 15/zoom.scale();
+          var size = 15/scale;
           return size + 'px';
         })
         .attr("fill", "white")
@@ -272,8 +303,8 @@ function kmeans(clusternum,svg){
         })
         .call(getBB);
 
-    recs.attr("width", function(d){return d.bbox.width/zoom.scale()})
-      .attr("height", function(d){return d.bbox.height/zoom.scale()})
+    recs.attr("width", function(d){return d.bbox.width/scale})
+      .attr("height", function(d){return d.bbox.height/scale})
 
   var fail = 0;
 
@@ -287,10 +318,118 @@ function kmeans(clusternum,svg){
   }
 
   function getBB(selection) {
+
+      scale = zoom.scale();
+      if(scale<0.03){
+        scale = 0.03;
+      }
       selection.each(function(d){
         d.bbox = this.getBBox();
-        d.bbox.width=d.bbox.width*zoom.scale();
-        d.bbox.height=d.bbox.height*zoom.scale();
+        d.bbox.width=d.bbox.width*scale;
+        d.bbox.height=d.bbox.height*scale;
       })
   }
+}
+
+function playmode(){
+  show();
+}
+
+function show(){
+  if(play){
+    node = Math.floor(Math.random() * nodes.length);
+    zoomToNode(node);
+    setTimeout(function(){
+      show()}, 12000);
+  }
+}
+
+function zoomToNode(id){
+  d3.selectAll('.node').style('stroke-width','0');
+  d3.select();
+  $('#info_overlay').html('<p>Press pause to explore the map</p>');
+  var scale = 0.02
+  var zoomWidth=(0*-1*scale+width/2);
+  var zoomHeight = (0*-1*scale+height/2);
+  zoom.translate([zoomWidth,zoomHeight]);
+  zoom.scale(scale);
+  d3.select('#node'+id).style('stroke','#03A9F4').style('stroke-width','8');
+
+  svg.transition().duration(1500).attr("transform",
+          "translate("+zoomWidth+","+zoomHeight+") scale("+scale+","+scale+")").call(endall,
+          function() {
+            redraw();
+            var scale = 0.5
+            var zoomWidth=(nodes[id].x*-1*scale+width/2);
+            var zoomHeight = (nodes[id].y*-1*scale+height/2);
+            zoom.translate([zoomWidth,zoomHeight]);
+            zoom.scale(scale);
+            svg.transition().duration(4000).attr("transform",
+                    "translate("+zoomWidth+","+zoomHeight+") scale("+scale+","+scale+")").call(endall,
+                    function() {
+                      redraw();
+                      showinfo(nodes[id]);
+                    });
+          });
+  
+
+  //redraw();
+  /*var size = 15/scale;
+
+    d3.selectAll('.cluster').attr("font-size", function(d){
+        return size + 'px';
+    });
+
+    d3.selectAll('.clusterrec').attr("width", function(d){return d.bbox.width/scale })
+        .attr("height", function(d){return d.bbox.height/scale})
+        .attr("y", function(d) { return d.y-15/scale; });*/
+
+}
+
+function showinfo(d){
+  $('#info_overlay').html('<p>'+d.n+'</p><p>'+d.o+'</p><p id="notes"></p><p>Click to see on HDX</p>');
+  $.ajax({
+    url: "data/description/"+d.i+".json",
+    success: function(result){
+      $("#notes").html(result['notes']);
+    }
+  });
+}
+
+function redraw() {
+    var translate = zoom.translate();
+    var scale = zoom.scale();
+    if(d3.event){
+      translate = d3.event.translate;
+      scale = d3.event.scale;
+    }
+
+
+    svg.attr("transform",
+      "translate(" + translate + ")"
+      + " scale(" + scale + ")");
+
+    var scale = zoom.scale()
+    if(scale<0.03){
+      scale = 0.03;
+    }
+
+    var size = 15/scale;
+
+    d3.selectAll('.cluster').attr("font-size", function(d){
+      return size + 'px';
+    })
+
+    d3.selectAll('.clusterrec').attr("width", function(d){return d.bbox.width/scale })
+      .attr("height", function(d){return d.bbox.height/scale})
+      .attr("y", function(d) { return d.y-15/scale; })
+}
+
+function endall(transition, callback) {
+      if (!callback) callback = function(){};
+      if (transition.size() === 0) { callback() }
+    var n = 0;
+    transition
+        .each(function() { ++n; })
+        .each("end", function() { if (!--n) callback.apply(this, arguments);});
 }

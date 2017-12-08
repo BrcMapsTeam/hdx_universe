@@ -20,11 +20,15 @@ numOfFiles =  result["count"]
 #loops = int(math.ceil(numOfFiles/1000))
 output = []
 loops = 7
+j=0
 cutTags = ['geodata','hxl','polygon','geodatabase','shapefile']
 for i in range(0, loops):
 	result = find_datasets(1000*i, 1000)
 	packages = result["results"]
 	for package in packages:
+		if j<10:
+			print package['notes']
+			j=j+1
 		item = {}
 		item['i'] = package['id']
 		item['n'] = package['title']
