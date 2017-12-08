@@ -2,9 +2,8 @@
 <head>
   <meta charset="utf-8">
   <title>HDX Universe</title>
-
-
   <link rel="stylesheet" type="text/css" href="css/main.css"/>
+  <link rel="stylesheet" type="text/css" href="css/loader.css"/>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <script src="https://d3js.org/d3.v3.min.js"></script>
   <script
@@ -13,11 +12,19 @@
   crossorigin="anonymous"></script>
 </head>
 <body>
-  <div id="loader">Loading Data (May take a while 2.5mb)</div>
+  <div class="sp sp-circle"></div>
+  <div id="intro-text" class="sptext2"><p>This is a network map of the 6000+ dataset on the Humanitarian Data Exchange (HDX). The network is create by looking at the overlap in tags between data sets.  There were over half a million links between different datasets.  Here is just a sample of the strongest links which give a feel for the structure of the data relationships in HDX.</p>
+  <p>Use the mouse and controls to explore the map and see the clusters.  The play button can be used to auto explore the map.</p>
+  <p>Unfortunately, it is advisable to not view on a mobile device</p>
+  </div>
+  <div id="loader" class="sptext">Loading Data (May take a while 2.5mb)</div>
   <div id="map">
     <div id="info_overlay">
       <p>Hover a point for more info</p>
     </div>
+    <div id="zoom-in" class="zoomBtn">+</div>
+    <div id="zoom-out" class="zoomBtn">-</div>
+    <div id="play" class="zoomBtn">▶</div>
   </div>
   <script src="js/main.js"></script>
 </body>

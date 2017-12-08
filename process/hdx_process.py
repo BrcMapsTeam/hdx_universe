@@ -14,8 +14,10 @@ for item in data:
     for item2 in data:
         if(id2>id1):
             overlap = len([val for val in item['t'] if val in item2['t']])
+            possible = float(max(len(item['t']),len(item2['t'])))
+            value = (overlap/possible)*10
             if overlap>1:
-                link = {'s':id1,'t':id2,'v':overlap}
+                link = {'s':id1,'t':id2,'v':value}
                 linkdict['n'+str(id1)].append(link)
 
         id2=id2+1
@@ -33,6 +35,6 @@ for key in linkdict:
     #if length>2:
     #    links.append(linkdict[key][2])        
 
-with open('hdxDataLinks.json', 'w') as file:
+with open('hdxDataLinks2.json', 'w') as file:
     json.dump(links, file)
 

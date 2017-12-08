@@ -1,0 +1,1 @@
+{"notes": "Includes the windspeed per adm3-area, and a combined 1-10 score for windspeed and accumulated rainfall.\r\n\r\nDatasets used:\r\n\r\n- https://data.humdata.org/dataset/accumulated-gpm-imerg-data-for-haiti-hurricane-matthew-october-3-6th-2016\r\n\r\n- https://data.humdata.org/dataset/hurricane-matthew-gust-footprint-tropical-storm-risk-university-college-london\r\n"}
