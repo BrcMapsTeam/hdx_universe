@@ -91,8 +91,8 @@ function forceGraph(nodes,links){
             .attr("class", function(d){
               return "node ";
             })
-            .attr("r", function(d) {
-                return 30;
+            .attr("r", function(d,i) {
+                return 20+Math.sqrt(d.d)*2;
             })
             .style("stroke",function(d){
               if(d.h==1){
@@ -387,7 +387,7 @@ function zoomToNode(id){
 }
 
 function showinfo(d){
-  $('#info_overlay').html('<p>'+d.n+'</p><p>'+d.o+'</p><p id="notes"></p><p>Click to see on HDX</p>');
+  $('#info_overlay').html('<p>'+d.n+'</p><p>'+d.o+'</p><p>Downloads: '+d.d+'</p><p id="notes"></p><p>Click to see on HDX</p>');
   $.ajax({
     url: "data/description/"+d.i+".json",
     success: function(result){

@@ -7,6 +7,7 @@ with open('hdxDataScrape.json') as json_data:
 links = []
 linkdict = {}
 id1 = 0
+shuffle(data)
 for item in data:
     linkdict['n'+str(id1)] = [];
     print id1
@@ -35,6 +36,6 @@ for key in linkdict:
     #if length>2:
     #    links.append(linkdict[key][2])        
 
-with open('hdxDataLinks2.json', 'w') as file:
+with open('hdxDataLinks3.json', 'w') as file:
     json.dump(links, file)
 
